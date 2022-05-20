@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 ini_set("allow_url_fopen", 1);
 $DBG = false;
@@ -35,7 +34,7 @@ $lookup =  csvToArray("voltageToResistors.csv");
 array_shift($lookup);
 
 $prevDistance = 100;
-echo "Spannung: ". $voltage." V\n";
+echo "Spannung: ". $voltage." V<br>\n";
 
 foreach($lookup as $key => $value){
  	if( $value && is_numeric($value[0])){
@@ -44,7 +43,7 @@ foreach($lookup as $key => $value){
         	}
 		$distance =  abs($value[0] - $voltage);
 	
-		if($DBG) echo "\nCase: ".$value[1]. " \t(".$value[0]."  Distanz: ".$distance.") vorh. ".$prevDistance;
+		if($DBG) echo "<br>\nCase: ".$value[1]. " \t(".$value[0]."  Distanz: ".$distance.") vorh. ".$prevDistance;
  	      	if($distance < $prevDistance){
 			$case = $lookup[$key][1];
 			$lookupVoltage = $lookup[$key][0];
@@ -52,18 +51,18 @@ foreach($lookup as $key => $value){
 		}
 	}
 }
-echo "\n\n";
+//echo "<br><br>	\n\n";
 if(!isset($lookupVoltage)) $lookupVoltage = 0;
 if(!isset($case)) $case = 0;
 
-echo "Wir haben Fall ".$case. " (".$lookupVoltage." V)\n\n";
+echo "Wir haben Fall ".$case. " (".$lookupVoltage." V)<br><br>	\n\n";
 $personenDaheim = "";
 for ($i=0; $i < strlen($case); $i++) {
 	$caseNr = $case[$i];
 	$personenDaheim .= $personen[$caseNr]. " ";
 }
 
-echo "Es sing gerade daheim: $personenDaheim\n";
+echo "Es sing gerade daheim:<br><b> $personenDaheim</b>\n";
 ?>
 
 
