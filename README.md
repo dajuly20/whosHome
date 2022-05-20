@@ -4,4 +4,4 @@
 
 Under the hood, there is a Shelly Uni 
 
-![Shelly Uni](img/shellUni.png?raw=true "Shelly Uni")
+![Shelly Uni](img/shellyUni.png?raw=true "Shelly Uni")
