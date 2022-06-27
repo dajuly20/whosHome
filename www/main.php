@@ -1,6 +1,10 @@
 <?php
 ini_set("allow_url_fopen", 1);
 $DBG = false;
+
+$JSON = strtolower($_REQUEST["format"]) == "json";
+
+
 function csvToArray($csvFile){
  
     $file_to_read = fopen($csvFile, 'r');
@@ -34,7 +38,6 @@ $lookup =  csvToArray("voltageToResistors.csv");
 array_shift($lookup);
 
 $prevDistance = 100;
-echo "Spannung: ". $voltage." V<br>\n";
 
 foreach($lookup as $key => $value){
  	if( $value && is_numeric($value[0])){
@@ -55,14 +58,20 @@ foreach($lookup as $key => $value){
 if(!isset($lookupVoltage)) $lookupVoltage = 0;
 if(!isset($case)) $case = 0;
 
-echo "Wir haben Fall ".$case. " (".$lookupVoltage." V)<br><br>	\n\n";
-$personenDaheim = "";
+if($DBG) echo $JSON ? "JSON" : "TEXT"; 
+if(!$JSON) echo "Spannung: ". $voltage." V<br>\n";
+if(!$JSON) echo "Wir haben Fall ".$case. " (".$lookupVoltage." V)<br><br>\n\n";
+$personenDaheim = array();
+
 for ($i=0; $i < strlen($case); $i++) {
 	$caseNr = $case[$i];
-	$personenDaheim .= $personen[$caseNr]. " ";
+	array_push($personenDaheim,$personen[$caseNr]);
 }
 
-echo "Es sing gerade daheim:<br><b> $personenDaheim</b>\n";
+if(!$JSON) echo "Es sing gerade daheim:<br><b> ". implode(" ", $personenDaheim) ."</b>\n";
+
+$jsonObj["persons"] = $personenDaheim;
+$jsonObj["voltage"] = $voltage;
+
+if($JSON) echo json_encode($jsonObj);
 ?>
-
-
