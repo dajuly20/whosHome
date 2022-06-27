@@ -1,3 +1,4 @@
 #!/bin/bash
-echo "username will be admin ;-) "
-htpasswd  -c ./www/.htpasswd admin
+read -p "Please enter username to add: " user
+touch .htpasswd
+htpasswd  ./.htpasswd $user
