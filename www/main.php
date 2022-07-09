@@ -8,7 +8,7 @@ $JSON = strtolower($_REQUEST["format"]) == "json";
 function csvToArray($csvFile){
  
     $file_to_read = fopen($csvFile, 'r');
- 
+    if(!$file_to_read){ return [];  }
     while (!feof($file_to_read) ) {
         $lines[] = fgetcsv($file_to_read, 1000, ',');
  
@@ -33,6 +33,32 @@ $voltage = $obj["adcs"][0]["voltage"];
 if (round($voltage) != 0){
    $voltage = $voltage - $offset;
 }
+
+
+
+$rollingAvgFilename="rollingAvg.csv";
+$rollingAvgArray = csvToArray($rollingAvgFilename)[0];
+//var_dump($rollingAvgArray);
+// Pushing newest to the que
+array_push($rollingAvgArray, $voltage);
+//var_dump($rollingAvgArray);
+// Taking last one off
+array_shift($rollingAvgArray);
+//var_dump($rollingAvgArray);
+
+$rollingAvgVoltage = array_sum($rollingAvgArray)/count($rollingAvgArray);
+//echo $rollingAvgVoltage; 
+//echo "<br><br>";
+$csvStringToAvgVoltageFile = implode(",", $rollingAvgArray);
+//echo $csvStringToAvgVoltageFile;
+file_put_contents($rollingAvgFilename, $csvStringToAvgVoltageFile);
+
+
+$momentaryVoltage = $voltage;
+$voltage = $rollingAvgVoltage;
+
+
+
 
 $lookup =  csvToArray("voltageToResistors.csv");
 array_shift($lookup);
@@ -59,8 +85,8 @@ if(!isset($lookupVoltage)) $lookupVoltage = 0;
 if(!isset($case)) $case = 0;
 
 if($DBG) echo $JSON ? "JSON" : "TEXT"; 
-if(!$JSON) echo "Spannung: ". $voltage." V<br>\n";
-if(!$JSON) echo "Wir haben Fall ".$case. " (".$lookupVoltage." V)<br><br>\n\n";
+if(!$JSON) echo "Spannung: ".$rollingAvgVoltage."V rollingAvg (mom: ". $momentaryVoltage." V<br>\n";
+if(!$JSON) echo "Wir haben Fall ".$case. " (".$lookupVoltage." V <br><br>\n\n";
 $personenDaheim = array();
 
 for ($i=0; $i < strlen($case); $i++) {
@@ -71,7 +97,8 @@ for ($i=0; $i < strlen($case); $i++) {
 if(!$JSON) echo "Es sing gerade daheim:<br><b> ". implode(" ", $personenDaheim) ."</b>\n";
 
 $jsonObj["persons"] = $personenDaheim;
-$jsonObj["voltage"] = $voltage;
+$jsonObj["momvoltage"] = $momentaryVoltage;
+$jsonObj["avgvoltage"] = $rollingAvgVoltage;
 
 if($JSON) echo json_encode($jsonObj);
 ?>
